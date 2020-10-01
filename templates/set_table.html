@@ -1,0 +1,70 @@
+  <!DOCTYPE html>
+<html>
+<head>
+  <title>Thermostat</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->  
+  <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+  {% block styles %}
+  <link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}"> 
+<!--===============================================================================================-->
+<link rel="stylesheet" href="{{url_for('.static', filename='css/font-awesome.min.css')}}">
+<style>
+.table-nonfluid {
+   width: auto !important;
+}
+</style>
+
+<!--===============================================================================================-->
+{% endblock %}
+</head>
+<body>
+<!--Table-->
+<table id="tablePreview" class="table table-nonfluid table-bordered table-striped">
+<!--Table head-->
+  <thead>
+    <tr>
+      <th>Time</th>
+      <th>Week Int</th>
+      <th>Set Temp</th>
+
+    </tr>
+  </thead>
+  <!--Table head-->
+  <!--Table body-->
+  <tbody>
+    {% for set in set_list %}
+    <tr>
+
+                  <td>{{set.day_week}}</td>
+                  <td>{{set.set_time}}</td>
+                  <td>{{set.sch_temp}}</td>
+
+
+    </tr>
+         {% endfor %} 
+  </tbody>
+  <!--Table body-->
+</table>
+<!--Table-->
+
+
+
+
+{% block scripts %}
+<!--===============================================================================================-->  
+<script src="{{url_for('.static', filename='js/jquery-3.2.1.min.js')}}"></script>
+
+<!--===============================================================================================-->
+<script src="{{url_for('.static', filename='js/popper.js')}}"></script>
+<script src="{{url_for('.static', filename='js/bootstrap.min.js')}}"></script>
+
+
+
+
+
+{% endblock %}
+</body>
+</html>

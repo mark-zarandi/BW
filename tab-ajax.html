@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link href="../node_modules/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="example-table"></div>
+	<script type="text/javascript" src="../node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+		<script type="text/javascript">
+	//sample data
+	//var tabledata = [{'Act_group': 'General Admin', 'total': 90126.99999999994}, {'Act_group': 'Site Development', 'total': 101212.09000000001}];
+
+	var table = new Tabulator("#example-table", {
+		ajaxURL:"http://localhost:5000/summary",
+		height:200, // set height of table to enable virtual DOM
+		//data:tabledata, //load initial data into table
+		layout:"fitDataTable", //fit columns to width of table (optional)
+		columns:[ //Define Table Columns
+			{title:"Activity Group", field:"act_group", sorter:"string", width:150},
+			{title:"Total", field:"total", sorter:"number", hozAlign:"right", formatter:"money"},
+
+		],
+	    rowClick:function(e, row){ //trigger an alert message when the row is clicked
+	    	alert("Row " + row.getData().name + " Clicked!!!!");
+	    },
+	});
+</script>
+	</body>
+</html>
