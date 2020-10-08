@@ -157,16 +157,16 @@ def summary_w_period():
             for y in periods[iter_x]: #iter over periods
                 totals[iter_x][y['cal_period']] = y['total']
             iter_x +=1
-        # final_totals = {}
-        # final_totals['bounds'] = make_bounds()
-        # final_totals['totals'] = totals
-        print(json.dumps(totals))
+        final_totals = {}
+        final_totals['bounds'] = make_bounds()
+        final_totals['totals'] = totals
+
         response = app.response_class(
-            response=json.dumps(totals),
+            response=json.dumps(final_totals),
             status=200,
             mimetype='application/json'
         )
-        print(response)
+
         return response
     else:
         return render_template('periods.html')
