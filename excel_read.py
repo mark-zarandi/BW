@@ -13,9 +13,31 @@ from sqlalchemy.sql import func
 from flask_cors import CORS, cross_origin
 from act_group import act_grp
 import calendar
+from dateutil.relativedelta import relativedelta
 
 #from apscheduler.scheduler import Scheduler
 #import atexit
+def left(s, amount):
+    return s[:amount]
+
+def right(s, amount):
+    return s[-amount:]
+
+def mid(s, offset, amount):
+    return s[offset:offset+amount]
+
+def convert_to_julian(period):
+    x = str(period)
+    i_year = int(left(x,4))
+    if int(right(x,2))<=2:
+        i_year = i_year-1 
+    
+    i_month = fiscal_choose[int(right(x,2))]
+    cal = datetime(i_year,i_month,1)
+
+    result = (calendar.month_abbr[cal.month]+"-"+right(str(cal.year),2))
+    return result
+
 
 app = Flask(__name__)
 app.config.from_pyfile(os.path.abspath('pod_db.cfg'))
@@ -24,8 +46,10 @@ db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 #cors = CORS(app)
 excel.init_excel(app)
-global bounds
-bounds = {}
+
+global fiscal_choose
+
+fiscal_choose = {1:11,2:12,3:1,4:2,5:3,6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:10}
 
 class trans(db.Model):
     __tablename__ = "trans_BW"
@@ -47,6 +71,7 @@ class trans(db.Model):
     act_code = db.Column(db.String)
     act_text = db.Column(db.String)
     period = db.Column(db.Integer)
+    cal_period = db.Column(db.String)
     amount = db.Column(db.Float)
 
 
@@ -70,6 +95,7 @@ class trans(db.Model):
         self.act_text = act_text
         self.period = period
         self.amount = trans_amount
+        self.cal_period = convert_to_julian(period)
 
 @app.route("/summary", methods=['GET'])
 #@cross_origin()
@@ -90,38 +116,60 @@ def summary():
     print(response)
     return response
 
+def diff_month(d1, d2):
+    return (d1.year - d2.year) * 12 + d1.month - d2.month
+
 @app.route("/bounds", methods=['GET'])
-def makes_bounds():
+def make_bounds():
+    bounds = {}
     bounds['min']=(db.session.query(func.min(trans.period)).scalar())
     bounds['max']=(db.session.query(func.max(trans.period)).scalar())
-    for i in range(bounds['min'],bounds['max']):
-        print(datetime.date(i[4:],i[:2],1))
-    return jsonify({"result": "success"})
+    cal_bounds = {}
+    for i in bounds:
+        x = str(bounds[i])
+        i_year = int(left(x,4))
+        if int(right(x,2))<=2:
+            i_year = i_year-1 
+        
+        i_month = fiscal_choose[int(right(x,2))]
+        cal_bounds[i] = datetime(i_year,i_month,1)
+    month_count = (diff_month(cal_bounds['max'],cal_bounds['min'])) + 1
+
+    result = []
+    for x in range(month_count):
+        make_this = (cal_bounds['min']+relativedelta(months=+x))
+        result.append(calendar.month_abbr[make_this.month]+"-"+right(str(make_this.year),2))
+    return result
+
+
 
 
 @app.route("/summary_period", methods=['GET'])
 def summary_w_period():
+    if request.is_xhr:
+        end_sum = db.session.query(trans.id.label("id"),trans.act_group.label("act_group"),func.sum(trans.amount).label('total')).group_by(trans.act_group).order_by(trans.act_int)
+        totals = convert_q_json(end_sum)
+        periods = get_distinct()
+        iter_x = 0
+        for x in totals: #iter over TOTALS
+            current = (x["act_group"])
 
-    end_sum = db.session.query(trans.act_group.label("act_group"),func.sum(trans.amount).label('total')).group_by(trans.act_group).order_by(trans.act_int)
-    totals = convert_q_json(end_sum)
-    periods = get_distinct()
-    iter_x = 0
-    for x in totals: #iter over TOTALS
-        current = (x["act_group"])
-        for y in periods[iter_x]: #iter over periods
-            totals[iter_x][y['period']] = y['total']
-        iter_x +=1
-    final_totals = {}
-    final_totals['bounds'] = bounds
-    final_totals['totals'] = totals
-
-    response = app.response_class(
-        response=json.dumps(final_totals),
-        status=200,
-        mimetype='application/json'
-    )
-    print(response)
-    return response
+            for y in periods[iter_x]: #iter over periods
+                totals[iter_x][y['cal_period']] = y['total']
+            iter_x +=1
+        # final_totals = {}
+        # final_totals['bounds'] = make_bounds()
+        # final_totals['totals'] = totals
+        print(json.dumps(totals))
+        response = app.response_class(
+            response=json.dumps(totals),
+            status=200,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+    else:
+        return render_template('periods.html')
 
 @app.route('/')
 def main_report():
@@ -139,11 +187,11 @@ def js_sand():
 @app.route("/distinct", methods=['GET'])
 def get_distinct():
     lookie = db.session.query(trans.act_group).distinct(trans.act_group).order_by(trans.act_int).all()
-    print(min(lookie))
+
     period_summary = []
     for x in lookie:
         print(x[0])
-        end_sum = db.session.query(trans.act_group.label("act_group"),func.sum(trans.amount).label('total'), trans.period.label('period')).filter(trans.act_group==str(x[0])).group_by(trans.period).order_by(trans.act_int)
+        end_sum = db.session.query(trans.act_group.label("act_group"),func.sum(trans.amount).label('total'), trans.cal_period.label('cal_period')).filter(trans.act_group==str(x[0])).group_by(trans.period).order_by(trans.act_int)
         new_period = convert_q_json(end_sum)
         period_summary.append(new_period)
     return period_summary
@@ -174,8 +222,6 @@ def upload_file():
             db.session.commit()
             end_sum += float(look[17])
 
-        bounds[0] = db.session.query(func.min(trans.period)).scalar()
-        print(bounds[0])
 
         return jsonify({"result": "success"})
 

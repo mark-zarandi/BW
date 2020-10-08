@@ -2,34 +2,39 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<link href="./node_modules/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+		<link href="./static/node_modules/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
 	</head>
 	<body>
 		<div id="example-table"></div>
-	<script type="text/javascript" src="./node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
+	<script type="text/javascript" src="./static/node_modules/tabulator-tables/dist/js/tabulator.min.js"></script>
 		<script type="text/javascript">
 	//sample data
-	var tabledata = [
-  {
-    "act_group": "General Admin", 
-    "total": 90126.99999999994
-  }, 
-  {
-    "act_group": "Site Development", 
-    "total": 101212.09000000001
-  }
-];
+    var tableData = [
+    {id:1, name:"Oli Bob", progress:12, location:"United Kingdom", gender:"male", rating:1, col:"red", dob:"14/04/1984", car:1, lucky_no:5, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:2, name:"Mary May", progress:1, location:"Germany", gender:"female", rating:2, col:"blue", dob:"14/05/1982", car:true, lucky_no:10, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:3, name:"Christine Lobowski", progress:42, location:"France", gender:"female", rating:0, col:"green", dob:"22/05/1982", car:"true", lucky_no:12, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:4, name:"Brendon Philips", progress:100, location:"USA", gender:"male", rating:1, col:"orange", dob:"01/08/1980", car:false, lucky_no:18, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:5, name:"Margret Marmajuke", progress:16, location:"Canada", gender:"female", rating:5, col:"yellow", dob:"31/01/1999", car:false, lucky_no:33, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:6, name:"Frank Harbours", progress:38, location:"Russia", gender:"male", rating:4, col:"red", dob:"12/05/1966", car:1, lucky_no:2, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:7, name:"Jamie Newhart", progress:23, location:"India", gender:"male", rating:3, col:"green", dob:"14/05/1985", car:true, lucky_no:63, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:8, name:"Gemma Jane", progress:60, location:"China", gender:"female", rating:0, col:"red", dob:"22/05/1982", car:"true", lucky_no:72, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:9, name:"Emily Sykes", progress:42, location:"South Korea", gender:"female", rating:1, col:"maroon", dob:"11/11/1970", car:false, lucky_no:44, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    {id:10, name:"James Newman", progress:73, location:"Japan", gender:"male", rating:5, col:"red", dob:"22/03/1998", car:false, lucky_no:9, lorem:"Lorem ipsum dolor sit amet, elit consectetur adipisicing "},
+    ];
+
 
 	var table = new Tabulator("#example-table", {
 
-		height:200, // set height of table to enable virtual DOM
-		data:tabledata, //load initial data into table
-		layout:"fitDataTable", //fit columns to width of table (optional)
-		columns:[ //Define Table Columns
-			{title:"Activity Group", field:"act_group", sorter:"string", width:150},
-			{title:"Total", field:"total", sorter:"number", hozAlign:"right", formatter:"money"},
-
-		],
+    height:"311px",
+    data: tableData,
+    columns:[
+    {title:"Name", field:"name", width:250, frozen:true}, //frozen column
+    {title:"Progress", field:"progress", sorter:"number", hozAlign:"left", formatter:"progress", width:200,  editable:true},
+    {title:"Gender", field:"gender", width:150},
+    {title:"Rating", field:"rating",  formatter:"star", hozAlign:"center", width:200},
+    {title:"Date Of Birth", field:"dob", hozAlign:"center", sorter:"date"},
+    {title:"Driver", field:"car", hozAlign:"center", formatter:"tickCross", width:150},
+    ],
 	    rowClick:function(e, row){ //trigger an alert message when the row is clicked
 	    	alert("Row " + row.getData().name + " Clicked!!!!");
 	    },

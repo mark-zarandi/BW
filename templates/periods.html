@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	{% block styles %}
+
+	<link rel="stylesheet" href="{{url_for('.static', filename='node_modules/tabulator-tables/dist/css/tabulator.min.css')}}"> 
+	{% endblock %}
+	</head>
+	<body>
+	<div id="example-table"></div>
+	{% block scripts %}
+	<script src="{{url_for('.static', filename='node_modules/tabulator-tables/dist/js/tabulator.min.js')}}"></script>
+	<script type="text/javascript">
+	//sample data
+	//var tabledata = [{'Act_group': 'General Admin', 'total': 90126.99999999994}, {'Act_group': 'Site Development', 'total': 101212.09000000001}];
+	var temp_column = []
+
+	var table = new Tabulator("#example-table", {
+			//columns:first_columns,
+			
+    	columns:[{title:"Activity Group", field:"act_group", width:150, frozen:true},
+    				{title:"Total", field:"total", sorter:"number", hozAlign:"right", formatter:"money"},
+    				{title:"Jun-19",field:"Jun-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    				{title:"Jul-19",field:"Jul-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Aug-19",field:"Aug-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Sep-19",field:"Sep-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Oct-19",field:"Oct-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Nov-19",field:"Nov-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Dec-19",field:"Dec-19",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Jan-20",field:"Jan-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Feb-20",field:"Feb-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Mar-20",field:"Mar-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Apr-20",field:"Apr-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"May-20",field:"May-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Jun-20",field:"Jun-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Jul-20",field:"Jul-20",sorter:"number",hozAlign:"right",formatter:"money"},
+    			{title:"Aug-20",field:"Aug-20",sorter:"number",hozAlign:"right",formatter:"money"}],
+    			ajaxURL: "http://localhost:5000/summary_period",
+		height:200, // set height of table to enable virtual DOM
+		//data:tabledata, //load initial data into table
+		layout:"fitDataTable", //fit columns to width of table (optional)
+	    rowClick:function(e, row){ //trigger an alert message when the row is clicked
+	    	alert("Row " + row.getTable().getHtml() + " Clicked!!!!");
+	    },   
+
+        rowMouseOver:function(e, row){
+    //e - the event object
+    //row - row component
+    },
+	});
+</script>
+{% endblock %}
+	</body>
+</html>
+
