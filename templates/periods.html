@@ -5,10 +5,48 @@
 	{% block styles %}
 
 	<link rel="stylesheet" href="{{url_for('.static', filename='node_modules/tabulator-tables/dist/css/tabulator.min.css')}}"> 
+
+	<style>
+.tabulator-row-even.tabulator-selectable:hover {
+    background-color: #EFEFEF !important;
+    cursor: pointer;
+}
+.tabulator-row-odd.tabulator-selectable:hover {
+    background-color: #fff !important;
+    cursor: pointer;
+}
+
+.tabulator-row .tabulator-cell:hover {
+    background-color: #f00 !important;
+    cursor: pointer;
+    font-weight: bold;
+    border: 2px solid #000;
+    padding: 2px !important;
+}
+.tabulator-row-odd .tabulator-frozen {
+
+    background-color: #C5d5ea !important;
+
+}
+.tabulator-row-odd .tabulator-frozen.tabulator-frozen-left {
+    border-right: 2px solid #aaa;
+    background-color: #C5d5ea !important;
+}
+
+.tabulator-row-even .tabulator-frozen {
+
+    background-color: #E9EBF5 !important;
+
+}
+.tabulator-row-even .tabulator-frozen.tabulator-frozen-left {
+    border-right: 2px solid #aaa;
+    background-color: #E9EBF5 !important;
+}
+</style>
 	{% endblock %}
 	</head>
 	<body>
-	<div id="example-table"></div>
+	<div id="detail-table"></div>
 	{% block scripts %}
 	<script src="{{url_for('.static', filename='node_modules/tabulator-tables/dist/js/tabulator.min.js')}}"></script>
 	<script type="text/javascript">
@@ -16,7 +54,7 @@
 	//var tabledata = [{'Act_group': 'General Admin', 'total': 90126.99999999994}, {'Act_group': 'Site Development', 'total': 101212.09000000001}];
 	var temp_column = []
 
-	var table = new Tabulator("#example-table", {
+	var table = new Tabulator("#detail-table", {
 			//columns:first_columns,
 			
 
@@ -26,35 +64,24 @@
         //params - the parameters passed with the request
         //response - the JSON object returned in the body of the response.
         dyn_column = [];
-        dyn_column.push('');
-        dyn_column.push('');
+        dyn_column.push({title:"Activity Group", field:"act_group", width:150, frozen:true});
+        dyn_column.push({title:"Total", field:"total", sorter:"number", hozAlign:"right", formatter:"money",frozen:true});
         for (x in response['bounds']){
-        	dyn_column.push(response['bounds'][x])
+        	next_one = response['bounds'][x];
+        	dyn_column.push({title:next_one,field:next_one,sorter:'number',hozAlign:"right",formatter:"money"})
         }
+        
         return response['totals']; //return the tableData property of a response json object
     	},
-		height:200,
-		    	columns:[{title:"Activity Group", field:"act_group", width:150, frozen:true},
-    				{title:"Total", field:"total", sorter:"number", hozAlign:"right", formatter:"money",frozen:true},
-    				{title:"Jun-19",field:"Jun-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    				{title:"Jul-19",field:"Jul-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Aug-19",field:"Aug-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Sep-19",field:"Sep-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Oct-19",field:"Oct-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Nov-19",field:"Nov-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Dec-19",field:"Dec-19",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Jan-20",field:"Jan-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Feb-20",field:"Feb-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Mar-20",field:"Mar-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Apr-20",field:"Apr-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"May-20",field:"May-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Jun-20",field:"Jun-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Jul-20",field:"Jul-20",sorter:"number",hozAlign:"right",formatter:"money"},
-    			{title:"Aug-20",field:"Aug-20",sorter:"number",hozAlign:"right",formatter:"money"}],
+		height:290,
+		    	
 	    rowClick:function(e, row){ //trigger an alert message when the row is clicked
 	    	alert("Row " + row.getTable().getHtml() + " Clicked!!!!");
 	    },   
-
+	    dataLoaded:function(data){
+    //data - all data loaded into the table
+    	table.setColumns(dyn_column)
+    },
         rowMouseOver:function(e, row){
     //e - the event object
     //row - row component

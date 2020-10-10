@@ -270,6 +270,6 @@ def start_over():
     db.drop_all()
 
 if __name__ == "__main__":
-    #start_over()
+    start_over()
     db.create_all()
     app.run(use_reloader=True,debug=True)
